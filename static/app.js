@@ -1,5 +1,5 @@
 const $ = id => document.getElementById(id);
-let clients = [], products = [], client = null, history = [], clientIdx = 0;
+let clients = [], products = [], client = null, history = [], clientIdx = 0, lastReport = null;
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`(.+?)`/g, "<code>$1</code>");
@@ -153,6 +153,24 @@ function renderInsights(ins) {
       <small>${x.found ? "Uncovered by: “" + esc(x.question) + "”" : "Never asked about"}</small></div></div>`).join("")}</section>`;
 }
 
+function buildReport() {
+  const r = lastReport, t = r.insights.technique, d = r.insights.discovery;
+  const lines = [`# Interview report: ${client.name}`, `_${new Date().toLocaleString()}_`, "",
+    "## At a glance", `- Private needs uncovered: ${d.filter(x => x.found).length} of ${d.length}`,
+    `- Questions: ${t.open} open, ${t.closed} closed, ${t.other} other`,
+    `- Products recommended: ${r.insights.products.map(p => `${p.name} (${p.verdict})`).join(", ") || "none"}`, "",
+    "## Discovery map", ...d.map(x => `- ${x.found ? "[x]" : "[ ]"} **${x.topic}** (${x.importance})${x.found ? ` - uncovered by: "${x.question}"` : " - never asked about"}`), "",
+    "## Conversation", ...history.map(m => `**${m.role === "student" ? "You" : client.name.split(" ")[0]}:** ${m.content}`).flatMap(x => [x, ""]),
+    "## Your summary", r.summary || "_(none)_", "", "## Your recommendations", r.recs || "_(none)_", "", "## Coach feedback", r.feedback.replace(/^## /gm, "### "), ""];
+  return lines.join("\n");
+}
+$("download").onclick = () => {
+  if (!lastReport) return toast("Generate feedback first.");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([buildReport()], { type: "text/markdown" }));
+  a.download = `interview-report-${client.id}.md`; a.click(); URL.revokeObjectURL(a.href);
+};
+
 $("getFb").onclick = async () => {
   $("fbErr").textContent = "";
   if (history.length < 2) { $("fbErr").textContent = "Interview the client first."; return; }
@@ -161,6 +179,7 @@ $("getFb").onclick = async () => {
   setStep(4, "feedback");
   try {
     const { feedback, insights } = await api("/api/feedback", { client_id: client.id, messages: history, summary: $("summary").value, recommendations: $("recs").value });
+    lastReport = { feedback, insights, summary: $("summary").value, recs: $("recs").value };
     $("insights").innerHTML = renderInsights(insights);
     $("fbBody").innerHTML = renderFeedback(feedback);
   } catch (err) { setStep(3, "rec"); $("fbErr").textContent = err.message; }

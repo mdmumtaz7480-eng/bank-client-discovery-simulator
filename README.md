@@ -79,6 +79,10 @@ flowchart LR
   and recommendations. Code first computes a *coverage checklist* (which hidden needs were revealed) and flags *unsuitable
   recommended products*, then the model writes feedback under **What went well / What was missed / How to improve**, with no score.
 
+## Design write-up
+
+See [`docs/APPROACH.md`](docs/APPROACH.md) for the decisions, the problems I hit, limitations and next steps.
+
 ## Tests and evaluation
 
 ```bash
