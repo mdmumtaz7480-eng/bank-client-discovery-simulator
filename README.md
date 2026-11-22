@@ -10,6 +10,21 @@ learning-focused feedback from an **AI Coach**.
 |---|---|---|
 | ![Select client](docs/1-select-client.jpg) | ![Interview](docs/2-interview.jpg) | ![Feedback](docs/3-feedback.jpg) |
 
+![Insights after the interview](docs/4-insights.jpg)
+
+## What makes this different
+
+1. **Hidden facts are locked, not just "requested to stay hidden".** A classifier unlocks a fact only when the student asks
+   about it; locked facts never enter the client's prompt, so even a small model cannot blurt them out.
+   Measured with `scripts/evaluate.py` (results below); the barrier itself is proven by offline tests.
+2. **A live "Discovered" board** shows how many private needs the student has uncovered so far, without revealing what the
+   missing ones are.
+3. **Evidence-based coaching.** After the interview the student sees a *discovery map* (which need was uncovered by which
+   question), questioning-technique stats (open vs closed questions) and a check of each recommended product against the
+   client's needs. These are computed in code, so they are always correct; the AI Coach then writes the advice on top of them.
+4. **Tested.** 13 offline unit tests cover content integrity, the leak barrier and the analytics; an evaluation script
+   measures the AI itself.
+
 - Python 3.9+ **standard library only**: no `pip install`, no database, no login.
 - Both AIs use any **OpenAI-compatible** `/chat/completions` API (Ollama, LM Studio, Groq, OpenRouter, OpenAI...).
 - Clients, products and prompts are plain files you can edit without touching code.
@@ -64,11 +79,26 @@ flowchart LR
   and recommendations. Code first computes a *coverage checklist* (which hidden needs were revealed) and flags *unsuitable
   recommended products*, then the model writes feedback under **What went well / What was missed / How to improve**, with no score.
 
+## Tests and evaluation
+
+```bash
+python3 -m unittest discover -s tests      # 13 offline tests, no model needed
+python3 scripts/evaluate.py --baseline     # leak / reveal evaluation, compares against a prompt-only client
+```
+Results on `qwen2.5:7b` (details and caveats in [`docs/evaluation.md`](docs/evaluation.md)):
+
+| Mode | Opening replies leaking a hidden fact | Hidden facts revealed when asked |
+|---|---|---|
+| Gated (this app) | 0 / 12 | 6 / 11 (strict keyword match; most misses were the right fact in different words) |
+| Prompt-only baseline | 1 / 12 | 7 / 11 |
+
+Small sample, one trial each: treat these as a measured starting point, not a benchmark.
+
 ## Editing the content (no code changes)
 
 | File | Purpose |
 |---|---|
-| `content/clients/*.json` | One file per client: public profile, hidden information, ideal needs, suitable/unsuitable products. Add a file to add a client. |
+| `content/clients/*.json` | One file per client: public profile, hidden information (with evaluation `keywords` and a `probe` question), ideal needs, suitable/unsuitable products. Add a file to add a client. |
 | `content/products.json` | Product catalogue with features and limitations. |
 | `content/prompts.json` | AI Client and AI Coach instructions. |
 
@@ -89,7 +119,8 @@ app.py                 web server + both AI roles (stdlib only)
 static/                web interface (HTML, CSS, JS)
 content/               clients, products, prompts (editable)
 samples/               sample interview
-scripts/               sample generator
+scripts/               sample generator and evaluation
+tests/                 offline unit tests
 docs/                  screenshots
 ```
 

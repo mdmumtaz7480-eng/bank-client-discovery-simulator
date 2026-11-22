@@ -15,31 +15,80 @@
     {
       "topic": "High-interest debt",
       "detail": "He has a car loan and two credit cards totalling about QAR 55,000 at roughly 18 to 22% effective interest. He is embarrassed about it. Reveal only when asked about debts, loans, credit cards or monthly commitments.",
-      "importance": "critical"
+      "importance": "critical",
+      "keywords": [
+        "car loan",
+        "credit card"
+      ],
+      "probe": "Do you have any loans, credit cards or other debts?"
     },
     {
       "topic": "Children's university fund",
       "detail": "His main goal is paying for university for his two children, in about 9 and 12 years, probably abroad. He has nothing set aside specifically. Reveal when asked about goals, family or the future.",
-      "importance": "critical"
+      "importance": "critical",
+      "keywords": [
+        "universit"
+      ],
+      "probe": "What are your longer-term goals for your family?",
+      "reveal_keywords": [
+        "education",
+        "overseas",
+        "abroad",
+        "kids go"
+      ]
     },
     {
       "topic": "Remittances",
       "detail": "He sends QAR 3,000 a month to his mother and sister in Nigeria. Reveal when asked about regular transfers, family support or monthly spending.",
-      "importance": "high"
+      "importance": "high",
+      "keywords": [
+        "3,000",
+        "mother",
+        "sister"
+      ],
+      "probe": "Do you send money regularly to family or anyone else each month?"
     },
     {
       "topic": "Low risk tolerance and job uncertainty",
       "detail": "His contract is renewed yearly and he worries about losing the residence permit if the school does not renew. He wants money he can access, and hates the idea of locking funds. Reveal when asked about risk, job security or access to funds.",
-      "importance": "high"
+      "importance": "high",
+      "keywords": [
+        "contract",
+        "residence permit",
+        "lock"
+      ],
+      "probe": "How do you feel about risk, and how secure is your job?"
     },
     {
       "topic": "Banking preferences",
       "detail": "He has no strong religious preference about Sharia compliance and would take whichever product is best and fairly priced. Reveal only when asked about banking preferences. Does not like high fees.",
-      "importance": "low"
+      "importance": "low",
+      "keywords": [
+        "sharia",
+        "no strong",
+        "whichever",
+        "fees"
+      ],
+      "probe": "Do you have any preferences about the type of banking you use, for example Sharia-compliant, or about fees?",
+      "reveal_keywords": [
+        "open on that",
+        "straightforward",
+        "hidden cost",
+        "fair"
+      ]
     }
   ],
   "ideal_needs_summary": "Daniel's priority is to pay down about QAR 55,000 of 18 to 22% debt, using the Personal Loan (Debt Consolidation) because his residence permit is valid and his salary is transferred to the bank, then to build a flexible goal-based fund for the children's education. Locking money in the 12-Month Fixed Deposit does not fit his need for access, and the Platinum Travel Credit Card would worsen his debt. A strong student asks about debts before recommending any savings product, and flags the residence permit/contract-length condition on the loan.",
-  "suitable_product_ids": ["personal-loan-consolidation", "family-saver"],
-  "unsuitable_product_ids": ["fixed-deposit", "premium-credit-card", "sme-working-capital", "sme-murabaha-finance", "invoice-finance"],
+  "suitable_product_ids": [
+    "personal-loan-consolidation",
+    "family-saver"
+  ],
+  "unsuitable_product_ids": [
+    "fixed-deposit",
+    "premium-credit-card",
+    "sme-working-capital",
+    "sme-murabaha-finance",
+    "invoice-finance"
+  ],
   "personality": "Polite, measured and a bit reserved. Thinks before answering. Speaks plain English with the occasional light touch of humour. Gets slightly uncomfortable talking about debt."
 }

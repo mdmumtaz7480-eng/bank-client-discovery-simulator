@@ -79,12 +79,24 @@ function start(id) {
     <div class="tip"><b>Tip:</b> the product catalogue is in the “Products” tab. Discuss products with the client once you understand their needs.</div>`;
   $("railClient").innerHTML = `${avatar(client, clientIdx)}<div><b>${esc(client.name)}</b><small>${esc(client.profile.occupation.split(" at ")[0].split(" (")[0])}</small></div>`;
   $("summary").value = ""; $("recs").value = "";
+  renderBoard([], client.hidden_count);
   switchTab("brief"); setStep(2, "interview"); $("msg").focus();
 }
 
 function switchTab(name) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === name));
   $("tabBrief").classList.toggle("hidden", name !== "brief"); $("tabProducts").classList.toggle("hidden", name !== "products");
+  $("tabFound").classList.toggle("hidden", name !== "found");
+}
+function renderBoard(found, total) {
+  $("foundCount").textContent = found.length;
+  const left = total - found.length;
+  $("tabFound").innerHTML = `<div class="card board">
+    <div><b>${found.length} of ${total} private needs uncovered</b><div class="sub">They appear here when your questions draw them out.</div></div>
+    <div class="meter"><i style="width:${total ? 100 * found.length / total : 0}%"></i></div>
+    ${found.map(f => `<div class="found"><span class="ck">✓</span><div><b>${esc(f.topic)}</b><small>${esc(f.importance)} priority</small></div></div>`).join("")}
+    ${left ? `<div class="locked">${left} more still hidden. Try asking about goals, risks, commitments or preferences.</div>` : `<div class="tip">You uncovered everything. Now match the right products.</div>`}
+  </div>`;
 }
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => switchTab(t.dataset.tab));
 
@@ -100,7 +112,8 @@ $("composer").onsubmit = async e => {
   $("send").disabled = true;
   const wait = bubble("client", '<span class="typing"><i></i><i></i><i></i></span>');
   try {
-    const { reply } = await api("/api/chat", { client_id: client.id, messages: history });
+    const { reply, discovered, total } = await api("/api/chat", { client_id: client.id, messages: history });
+    client.total_hidden = total; renderBoard(discovered, total);
     wait.textContent = reply; history.push({ role: "client", content: reply });
   } catch (err) { wait.textContent = "Error: " + err.message; wait.classList.add("err"); history.pop(); }
   $("chat").scrollTop = $("chat").scrollHeight; $("send").disabled = false; $("msg").focus();
@@ -125,14 +138,30 @@ function renderFeedback(text) {
   }).join("") + "</div>";
 }
 
+function renderInsights(ins) {
+  const d = ins.discovery, got = d.filter(x => x.found).length, t = ins.technique;
+  const openPct = t.total ? Math.round(100 * t.open / t.total) : 0;
+  const pv = ins.products, good = pv.filter(p => p.verdict === "suitable").length, bad = pv.filter(p => p.verdict === "unsuitable").length;
+  const stat = (big, lbl, bar) => `<div class="card stat"><div class="big">${big}</div><div class="lbl">${lbl}</div>${bar || ""}</div>`;
+  return `<div class="stats">
+    ${stat(`${got}/${d.length}`, "private needs uncovered", `<div class="bar"><i style="width:${100 * got / d.length}%;background:var(--green)"></i></div>`)}
+    ${stat(`${openPct}%`, `open questions (${t.open} open, ${t.closed} closed, ${t.other} other)`, `<div class="bar"><i style="width:${openPct}%;background:var(--primary)"></i></div>`)}
+    ${stat(`${good} / ${pv.length}`, `recommended products suit the client${bad ? ` (${bad} unsuitable)` : ""}`, `<div class="vchips">${pv.map(p => `<span class="v ${p.verdict}">${esc(p.name)}</span>`).join("") || '<span class="lbl">No catalogue product named</span>'}</div>`)}
+  </div>
+  <section class="card map"><h2>Discovery map</h2><div class="sub">Which private needs your questions uncovered, and the question that did it.</div>
+    ${d.map(x => `<div class="mrow ${x.found ? "y" : "n"}"><span class="ic">${x.found ? "✓" : "–"}</span><div><b>${esc(x.topic)}</b><span class="imp ${esc(x.importance)}">${esc(x.importance)}</span>
+      <small>${x.found ? "Uncovered by: “" + esc(x.question) + "”" : "Never asked about"}</small></div></div>`).join("")}</section>`;
+}
+
 $("getFb").onclick = async () => {
   $("fbErr").textContent = "";
   if (history.length < 2) { $("fbErr").textContent = "Interview the client first."; return; }
   $("getFb").disabled = true; $("getFb").textContent = "Coach is reviewing…";
-  $("fbBody").innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  $("insights").innerHTML = ""; $("fbBody").innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
   setStep(4, "feedback");
   try {
-    const { feedback } = await api("/api/feedback", { client_id: client.id, messages: history, summary: $("summary").value, recommendations: $("recs").value });
+    const { feedback, insights } = await api("/api/feedback", { client_id: client.id, messages: history, summary: $("summary").value, recommendations: $("recs").value });
+    $("insights").innerHTML = renderInsights(insights);
     $("fbBody").innerHTML = renderFeedback(feedback);
   } catch (err) { setStep(3, "rec"); $("fbErr").textContent = err.message; }
   $("getFb").disabled = false; $("getFb").textContent = "Get coaching feedback";
