@@ -113,8 +113,8 @@ def unlocked_items(client, history):
     return [items[n - 1] for n in sorted(nums)]
 
 
-def client_reply(client, history):
-    unlocked = unlocked_items(client, history)
+def client_reply(client, history, unlocked=None):
+    unlocked = unlocked_items(client, history) if unlocked is None else unlocked
     hidden = "\n".join(f"- {h['detail']}" for h in unlocked) or "(nothing unlocked yet: share none of your private matters)"
     sys_prompt = load_prompts()["client_system"].format(
         profile=fmt_profile(client), personality=client["personality"], hidden=hidden
@@ -123,6 +123,54 @@ def client_reply(client, history):
     for m in history:  # student = "user", client = "assistant"
         msgs.append({"role": "user" if m["role"] == "student" else "assistant", "content": m["content"]})
     return chat_completion(msgs)
+
+
+_GREETING = re.compile(r"^\s*(hello|hi|hey|good (morning|afternoon|evening)|salam|assalam[^,.!]*)[^,.!?]*[,.!]\s*", re.I)
+_OPEN = re.compile(r"^(what|how|why|who|where|when|which|tell me|describe|walk me|explain|talk me|help me understand|in what|could you (tell|describe|explain|share|walk)|can you (tell|describe|explain|share|walk))\b", re.I)
+_CLOSED = re.compile(r"^(do|does|did|is|are|was|were|have|has|had|can|could|will|would|should|shall)\b", re.I)
+
+
+def question_technique(history):
+    """Deterministic questioning-technique stats: open (what/how/why/tell me...) vs closed (yes/no) questions."""
+    open_q = closed_q = other = 0
+    for m in history:
+        if m["role"] != "student":
+            continue
+        text = _GREETING.sub("", m["content"].strip())
+        parts = [p.strip() for p in re.split(r"(?<=[.?!])\s+", text) if p.strip()]
+        q = next((p for p in reversed(parts) if "?" in p), parts[-1] if parts else "")
+        if _OPEN.match(q):
+            open_q += 1
+        elif _CLOSED.match(q):
+            closed_q += 1
+        else:
+            other += 1
+    return {"open": open_q, "closed": closed_q, "other": other, "total": open_q + closed_q + other}
+
+
+def discovery_report(client, history):
+    """Which hidden needs did the student uncover, and with which question? (first unlocking question wins)"""
+    found = {}
+    for m in history:
+        if m["role"] == "student":
+            for n in _topics_for_question(client, m["content"]):
+                found.setdefault(n, m["content"])
+    return [
+        {"topic": h["topic"], "importance": h.get("importance", "medium"), "found": (i + 1) in found,
+         "question": found.get(i + 1)}
+        for i, h in enumerate(client["hidden_information"])
+    ]
+
+
+def product_verdicts(client, recommendations, products):
+    text = recommendations.lower()
+    out = []
+    for p in products:
+        if p["name"].split(" (")[0].lower() in text or p["id"] in text:
+            v = "suitable" if p["id"] in client.get("suitable_product_ids", []) else (
+                "unsuitable" if p["id"] in client.get("unsuitable_product_ids", []) else "debatable")
+            out.append({"id": p["id"], "name": p["name"].split(" (")[0], "verdict": v})
+    return out
 
 
 def fmt_transcript(client, history):
@@ -213,7 +261,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/clients":  # public info only - hidden needs stay on the server
             out = [
                 {"id": c["id"], "name": c["name"], "tagline": c["tagline"], "avatar": c["avatar"],
-                 "profile": c["public_profile"]}
+                 "profile": c["public_profile"], "hidden_count": len(c["hidden_information"])}
                 for c in load_clients().values()
             ]
             return self._send(200, out)
@@ -237,11 +285,19 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, {"error": "unknown client"})
             history = body.get("messages", [])
             if self.path == "/api/chat":
-                return self._send(200, {"reply": client_reply(client, history)})
+                unlocked = unlocked_items(client, history)
+                found = [{"topic": h["topic"], "importance": h.get("importance", "medium")} for h in unlocked]
+                return self._send(200, {"reply": client_reply(client, history, unlocked), "discovered": found,
+                                        "total": len(client["hidden_information"])})
             if self.path == "/api/feedback":
-                fb = coach_feedback(client, history, body.get("summary", "").strip() or "(none provided)",
-                                    body.get("recommendations", "").strip() or "(none provided)", load_products())
-                return self._send(200, {"feedback": fb})
+                products = load_products()
+                summary = body.get("summary", "").strip() or "(none provided)"
+                recs = body.get("recommendations", "").strip() or "(none provided)"
+                fb = coach_feedback(client, history, summary, recs, products)
+                return self._send(200, {"feedback": fb, "insights": {
+                    "discovery": discovery_report(client, history),
+                    "technique": question_technique(history),
+                    "products": product_verdicts(client, recs, products)}})
             self._send(404, {"error": "not found"})
         except Exception as e:  # prototype: surface errors to the UI
             self._send(502, {"error": str(e)})

@@ -53,8 +53,9 @@
             </form>
           </div>
           <aside class="side">
-            <div class="tabs"><button class="tab on" data-tab="brief">Client brief</button><button class="tab" data-tab="products">Products</button></div>
+            <div class="tabs"><button class="tab on" data-tab="brief">Brief</button><button class="tab" data-tab="found">Discovered <span class="count" id="foundCount">0</span></button><button class="tab" data-tab="products">Products</button></div>
             <div id="tabBrief" class="tabpane"></div>
+            <div id="tabFound" class="tabpane hidden"></div>
             <div id="tabProducts" class="tabpane hidden"></div>
             <button class="btn primary block" id="toRec">I'm done — write my recommendation <span aria-hidden="true">→</span></button>
           </aside>
@@ -78,6 +79,7 @@
       <!-- Step 4 -->
       <section id="feedback" class="view hidden">
         <div class="view-head"><h1>Your coaching feedback</h1><p id="fbSub">Reviewed against the client's private needs and the product catalogue.</p></div>
+        <div id="insights"></div>
         <div id="fbBody"></div>
         <div class="actions end"><button class="btn ghost" id="reviewRec">Edit my recommendation</button><button class="btn primary" id="again">Practise with another client</button></div>
       </section>

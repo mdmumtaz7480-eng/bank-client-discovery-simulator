@@ -15,36 +15,78 @@
     {
       "topic": "Late-paying customers",
       "detail": "Corporate customers pay 60 to 90 days after invoice, while she pays suppliers and salaries within 30 days. This is her main cash flow problem. Reveal when asked about cash flow, payments, customers or what worries her about the business.",
-      "importance": "critical"
+      "importance": "critical",
+      "keywords": [
+        "60",
+        "90 days",
+        "pay late",
+        "paying late",
+        "late payment"
+      ],
+      "probe": "How quickly do your customers pay you after you invoice them?"
     },
     {
       "topic": "Sharia compliance",
       "detail": "She and her family only use Sharia-compliant banking. She will not take an interest-based product. She does not mention this unless asked about preferences, values, religion or the type of banking she wants, OR unless a product is proposed (then she reacts strongly if it is interest-based).",
-      "importance": "critical"
+      "importance": "critical",
+      "keywords": [
+        "sharia",
+        "interest-based",
+        "islamic"
+      ],
+      "probe": "Do you have any preferences about the type of banking you use, such as Sharia-compliant products?"
     },
     {
       "topic": "Expansion plan",
       "detail": "She wants to buy a second refrigerated van (about QAR 180,000) and rent a larger kitchen within 12 months. Reveal when asked about plans, growth or future goals.",
-      "importance": "high"
+      "importance": "high",
+      "keywords": [
+        "van",
+        "larger kitchen",
+        "bigger kitchen",
+        "second kitchen"
+      ],
+      "probe": "What are your plans for the business over the next year?"
     },
     {
       "topic": "Personal guarantee fear",
       "detail": "A relative lost his house after guaranteeing a business loan. She is very reluctant to pledge personal assets or sign a personal guarantee. Reveal when asked about collateral or risk, or when a product requiring a guarantee is proposed.",
-      "importance": "high"
+      "importance": "high",
+      "keywords": [
+        "guarantee",
+        "lost his house"
+      ],
+      "probe": "How would you feel about pledging personal assets or giving a personal guarantee for a loan?"
     },
     {
       "topic": "Existing debt",
       "detail": "She has a QAR 60,000 supplier credit arrangement and no bank debt. Reveal only when asked about current loans or debts.",
-      "importance": "medium"
+      "importance": "medium",
+      "keywords": [
+        "60,000",
+        "supplier credit"
+      ],
+      "probe": "Do you have any existing loans or debts at the moment?"
     },
     {
       "topic": "Customers are corporates",
       "detail": "Almost all of her invoices are to companies and government-linked organisations, with a few individual weddings. Reveal when asked who her customers are.",
-      "importance": "medium"
+      "importance": "medium",
+      "keywords": [
+        "government"
+      ],
+      "probe": "Who are your customers?"
     }
   ],
   "ideal_needs_summary": "Fatima needs (1) a way to bridge the 60 to 90 day gap in customer payments, (2) Sharia-compliant financing, (3) financing for a vehicle and kitchen expansion, and (4) no personal guarantee if possible. The best fits are Business Murabaha Finance for the van and expansion, and she should be cautious about the Working Capital Line (interest-based and requires a personal guarantee) and Invoice Finance (not Sharia-compliant in its current structure). A strong student acknowledges that no catalogue product fully solves the receivables gap in a Sharia-compliant way and is honest about that.",
-  "suitable_product_ids": ["sme-murabaha-finance"],
-  "unsuitable_product_ids": ["sme-working-capital", "invoice-finance", "fixed-deposit", "premium-credit-card"],
+  "suitable_product_ids": [
+    "sme-murabaha-finance"
+  ],
+  "unsuitable_product_ids": [
+    "sme-working-capital",
+    "invoice-finance",
+    "fixed-deposit",
+    "premium-credit-card"
+  ],
   "personality": "Warm, busy, practical and direct. Speaks in short natural sentences. A little guarded about money. Occasionally uses a Gulf-Arabic phrase such as 'inshallah' or 'yalla'. Does not use banking jargon and may ask the student to explain terms."
 }
