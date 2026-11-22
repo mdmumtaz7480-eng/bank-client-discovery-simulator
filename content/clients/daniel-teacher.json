@@ -29,7 +29,13 @@
       "keywords": [
         "universit"
       ],
-      "probe": "What are your longer-term goals for your family?"
+      "probe": "What are your longer-term goals for your family?",
+      "reveal_keywords": [
+        "education",
+        "overseas",
+        "abroad",
+        "kids go"
+      ]
     },
     {
       "topic": "Remittances",
@@ -63,7 +69,13 @@
         "whichever",
         "fees"
       ],
-      "probe": "Do you have any preferences about the type of banking you use, for example Sharia-compliant, or about fees?"
+      "probe": "Do you have any preferences about the type of banking you use, for example Sharia-compliant, or about fees?",
+      "reveal_keywords": [
+        "open on that",
+        "straightforward",
+        "hidden cost",
+        "fair"
+      ]
     }
   ],
   "ideal_needs_summary": "Daniel's priority is to pay down about QAR 55,000 of 18 to 22% debt, using the Personal Loan (Debt Consolidation) because his residence permit is valid and his salary is transferred to the bank, then to build a flexible goal-based fund for the children's education. Locking money in the 12-Month Fixed Deposit does not fit his need for access, and the Platinum Travel Credit Card would worsen his debt. A strong student asks about debts before recommending any savings product, and flags the residence permit/contract-length condition on the loan.",

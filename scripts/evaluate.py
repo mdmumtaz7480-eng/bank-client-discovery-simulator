@@ -21,9 +21,10 @@ GENERAL = [
 ]
 
 
-def hits(reply, item):
+def hits(reply, item, reveal=False):
     r = reply.lower()
-    return any(k.lower() in r for k in item.get("keywords", []))
+    words = item.get("keywords", []) + (item.get("reveal_keywords", []) if reveal else [])
+    return any(k.lower() in r for k in words)
 
 
 def baseline_reply(client, history):
@@ -47,7 +48,7 @@ def run(client, reply_fn):
     revealed = 0
     for h in items:
         r = reply_fn(client, [{"role": "student", "content": h["probe"]}])
-        ok = hits(r, h)
+        ok = hits(r, h, reveal=True)
         revealed += ok
         print(f"  reveal| {'ok' if ok else 'MISSED'} | {h['topic']}", flush=True)
     return leaks, total, revealed, len(items)

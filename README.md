@@ -16,7 +16,7 @@ learning-focused feedback from an **AI Coach**.
 
 1. **Hidden facts are locked, not just "requested to stay hidden".** A classifier unlocks a fact only when the student asks
    about it; locked facts never enter the client's prompt, so even a small model cannot blurt them out.
-   Measured with `scripts/evaluate.py` (results below).
+   Measured with `scripts/evaluate.py` (results below); the barrier itself is proven by offline tests.
 2. **A live "Discovered" board** shows how many private needs the student has uncovered so far, without revealing what the
    missing ones are.
 3. **Evidence-based coaching.** After the interview the student sees a *discovery map* (which need was uncovered by which
@@ -85,7 +85,14 @@ flowchart LR
 python3 -m unittest discover -s tests      # 13 offline tests, no model needed
 python3 scripts/evaluate.py --baseline     # leak / reveal evaluation, compares against a prompt-only client
 ```
-EVAL_PLACEHOLDER
+Results on `qwen2.5:7b` (details and caveats in [`docs/evaluation.md`](docs/evaluation.md)):
+
+| Mode | Opening replies leaking a hidden fact | Hidden facts revealed when asked |
+|---|---|---|
+| Gated (this app) | 0 / 12 | 6 / 11 (strict keyword match; most misses were the right fact in different words) |
+| Prompt-only baseline | 1 / 12 | 7 / 11 |
+
+Small sample, one trial each: treat these as a measured starting point, not a benchmark.
 
 ## Editing the content (no code changes)
 

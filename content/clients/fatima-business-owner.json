@@ -23,7 +23,12 @@
         "paying late",
         "late payment"
       ],
-      "probe": "How quickly do your customers pay you after you invoice them?"
+      "probe": "How quickly do your customers pay you after you invoice them?",
+      "reveal_keywords": [
+        "two to three months",
+        "couple of months",
+        "months to pay"
+      ]
     },
     {
       "topic": "Sharia compliance",
@@ -66,7 +71,12 @@
         "60,000",
         "supplier credit"
       ],
-      "probe": "Do you have any existing loans or debts at the moment?"
+      "probe": "Do you have any existing loans or debts at the moment?",
+      "reveal_keywords": [
+        "no loans",
+        "no bank debt",
+        "supplier credit"
+      ]
     },
     {
       "topic": "Customers are corporates",
