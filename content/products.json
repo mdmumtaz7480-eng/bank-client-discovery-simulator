@@ -1,0 +1,65 @@
+[
+  {
+    "id": "sme-working-capital",
+    "name": "Business Working Capital Line",
+    "type": "Conventional credit facility",
+    "sharia_compliant": false,
+    "summary": "Revolving overdraft-style credit line for day-to-day business cash flow.",
+    "features": ["Limit up to QAR 500,000", "Interest only on the amount drawn", "Renewed annually", "Fast approval for existing business account holders"],
+    "limitations": ["Interest-based (not Sharia-compliant)", "Needs 2 years of audited accounts", "Personal guarantee from the owner required", "Variable rate"]
+  },
+  {
+    "id": "sme-murabaha-finance",
+    "name": "Business Murabaha Finance",
+    "type": "Sharia-compliant financing",
+    "sharia_compliant": true,
+    "summary": "The bank buys goods or equipment and sells them to the business at an agreed mark-up, repaid in instalments.",
+    "features": ["Fixed profit rate, no surprises", "Terms of 12 to 60 months", "Suited to buying stock, vehicles or equipment", "Certified by the bank's Sharia board"],
+    "limitations": ["Must be linked to a specific purchase (not free cash)", "Not a flexible revolving facility", "Slower to arrange than a credit line", "Early settlement discount is at the bank's discretion"]
+  },
+  {
+    "id": "invoice-finance",
+    "name": "Invoice Finance (Receivables Advance)",
+    "type": "Trade finance",
+    "sharia_compliant": false,
+    "summary": "Advance of up to 80% of the value of approved customer invoices, paid within 48 hours.",
+    "features": ["Turns unpaid invoices into immediate cash", "Limit grows with sales", "Optional credit checks on the business's customers"],
+    "limitations": ["Fee of 1.5% to 3% per invoice per month", "Only works for invoices to corporate customers, not individuals", "Not Sharia-compliant in its current structure", "Customers may be told the invoices are financed"]
+  },
+  {
+    "id": "family-saver",
+    "name": "Family Goal Saver",
+    "type": "Savings account",
+    "sharia_compliant": true,
+    "summary": "A Mudaraba-based savings account to build a fund for a goal such as school fees or a home deposit.",
+    "features": ["Monthly profit distribution (not guaranteed)", "Standing order to save automatically", "No fees if the balance stays above QAR 5,000", "Withdrawals allowed with 5 days' notice"],
+    "limitations": ["Profit rate varies and is not guaranteed", "Notice period on withdrawals", "Not a fixed-term deposit, so no guaranteed return"]
+  },
+  {
+    "id": "fixed-deposit",
+    "name": "12-Month Fixed Deposit",
+    "type": "Conventional term deposit",
+    "sharia_compliant": false,
+    "summary": "Lock in a fixed interest rate for 12 months on a lump sum.",
+    "features": ["Guaranteed fixed rate", "Minimum QAR 20,000", "Capital protected"],
+    "limitations": ["Funds locked for 12 months", "Penalty for early withdrawal", "Interest-based (not Sharia-compliant)"]
+  },
+  {
+    "id": "personal-loan-consolidation",
+    "name": "Personal Loan (Debt Consolidation)",
+    "type": "Conventional personal loan",
+    "sharia_compliant": false,
+    "summary": "A single fixed-rate loan to repay several existing loans or credit cards.",
+    "features": ["Fixed monthly instalment", "Up to 6 times monthly salary", "Terms up to 48 months", "Lower rate than most credit cards"],
+    "limitations": ["Requires a salary transfer to the bank", "Needs a residence permit valid for the full loan term", "Early settlement fee of 1%", "Interest-based (not Sharia-compliant)"]
+  },
+  {
+    "id": "premium-credit-card",
+    "name": "Platinum Travel Credit Card",
+    "type": "Credit card",
+    "sharia_compliant": false,
+    "summary": "A rewards card with airline miles and lounge access.",
+    "features": ["Airline miles on every purchase", "Airport lounge access", "Travel insurance"],
+    "limitations": ["High annual fee", "High interest on unpaid balances", "Encourages spending rather than saving", "Minimum salary of QAR 15,000"]
+  }
+]

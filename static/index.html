@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bank Client Discovery Simulator</title><link rel="stylesheet" href="/style.css"></head><body>
+<header><h1>Bank Client Discovery Simulator</h1><small id="model"></small></header>
+<div class="steps"><span id="s1" class="on">1. Select a client</span><span id="s2">2. Interview</span><span id="s3">3. Recommend</span><span id="s4">4. Coaching feedback</span></div>
+<main>
+<section id="pick"><h2>Choose a client to interview</h2><div class="cards" id="cards"></div></section>
+<section id="interview" class="hidden"><div class="layout"><div>
+ <h2 id="cname"></h2><p id="cintro"></p><div id="chat"></div>
+ <div class="row"><input id="msg" placeholder="Ask the client a question..." autocomplete="off"><button id="send">Send</button></div>
+ <p><button id="toRec" class="sec">I'm done interviewing &rarr; write my recommendation</button> <button id="back" class="sec">Change client</button></p></div>
+ <aside class="card"><h3 style="margin-top:0">Product catalogue</h3><div id="products"></div></aside></div></section>
+<section id="rec" class="hidden"><h2>Your summary and recommendation</h2>
+ <label for="summary">Summary of the client's needs (what did you learn?)</label><textarea id="summary"></textarea>
+ <label for="recs">Recommended products and why</label><textarea id="recs"></textarea>
+ <button id="getFb">Get coaching feedback</button> <button id="backInt" class="sec">Back to interview</button> <p id="fbErr" class="err"></p></section>
+<section id="feedback" class="hidden card"><div id="fbBody"></div><p><button id="again">Practise again</button></p></section>
+</main><script src="/app.js"></script></body></html>

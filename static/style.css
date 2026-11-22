@@ -1,0 +1,21 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#f4f6f9;color:#1d2433}
+header{background:#12355b;color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:18px;margin:0}header small{opacity:.75}
+.steps{display:flex;gap:8px;padding:12px 24px;background:#fff;border-bottom:1px solid #dde3ea}
+.steps span{padding:4px 12px;border-radius:14px;background:#e9edf2;font-size:13px}.steps .on{background:#12355b;color:#fff}
+main{max-width:1100px;margin:20px auto;padding:0 16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px #0002}
+.avatar{width:44px;height:44px;border-radius:50%;background:#12355b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:8px}
+button{background:#12355b;color:#fff;border:0;border-radius:6px;padding:9px 16px;cursor:pointer;font-size:14px}
+button.sec{background:#e9edf2;color:#12355b}button:disabled{opacity:.5;cursor:wait}
+.layout{display:grid;grid-template-columns:2fr 1fr;gap:16px}@media(max-width:800px){.layout{grid-template-columns:1fr}}
+#chat{height:420px;overflow-y:auto;background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px #0002}
+.msg{max-width:80%;padding:8px 12px;border-radius:12px;margin:6px 0;white-space:pre-wrap;line-height:1.4}
+.student{background:#12355b;color:#fff;margin-left:auto}.client{background:#e9edf2}
+.row{display:flex;gap:8px;margin-top:10px}.row input,textarea{flex:1;padding:9px;border:1px solid #c5cdd8;border-radius:6px;font:inherit;width:100%}
+textarea{min-height:90px;margin-bottom:10px}label{font-weight:600;font-size:14px}
+.prod{border-bottom:1px solid #eef1f5;padding:8px 0;font-size:13px}.prod h4{margin:0 0 4px}.tag{font-size:11px;background:#d9f2e3;color:#17633a;padding:1px 6px;border-radius:8px}
+.tag.no{background:#eee;color:#555}ul{margin:4px 0;padding-left:18px}
+#feedback h2{color:#12355b;border-bottom:2px solid #e9edf2;padding-bottom:4px}.err{color:#b00020}
+.hidden{display:none}
