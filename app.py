@@ -5,6 +5,7 @@ Hidden client information never leaves the server until the coach needs it.
 """
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -81,9 +82,42 @@ def fmt_hidden(c):
     return "\n".join(f"- [{h['topic']}] {h['detail']}" for h in c["hidden_information"])
 
 
+_unlock_cache = {}
+
+
+def _topics_for_question(client, question):
+    key = (client["id"], question)
+    if key in _unlock_cache:
+        return _unlock_cache[key]
+    items = client["hidden_information"]
+    topics = "\n".join(f"{i + 1}. {h['topic']}" for i, h in enumerate(items))
+    prompt = (
+        "A banker is interviewing a client. Below are topics the client could talk about, and ONE thing the banker said. "
+        "A topic is UNLOCKED only if the banker's message asks about it directly or closely related to it, or proposes a "
+        "product whose features or limitations touch it (e.g. interest-based, personal guarantee, fees, lock-in). "
+        "Greetings and general questions ('what brings you here', 'tell me about yourself', 'how is business') unlock "
+        "nothing. Reply with only the numbers of unlocked topics separated by commas, or NONE.\n\n"
+        f"TOPICS\n{topics}\n\nBANKER SAID\n{question}"
+    )
+    out = chat_completion([{"role": "user", "content": prompt}], temperature=0)
+    nums = [int(n) for n in re.findall(r"\d+", out) if 0 < int(n) <= len(items)]
+    _unlock_cache[key] = nums
+    return nums
+
+
+def unlocked_items(client, history):
+    """Structural guard against leaks: a cheap AI step decides, per student message, which hidden facts it
+    'unlocks'. Only unlocked facts are ever put in the client's prompt, so the model cannot leak the rest."""
+    items = client["hidden_information"]
+    nums = {n for m in history if m["role"] == "student" for n in _topics_for_question(client, m["content"])}
+    return [items[n - 1] for n in sorted(nums)]
+
+
 def client_reply(client, history):
+    unlocked = unlocked_items(client, history)
+    hidden = "\n".join(f"- {h['detail']}" for h in unlocked) or "(nothing unlocked yet: share none of your private matters)"
     sys_prompt = load_prompts()["client_system"].format(
-        profile=fmt_profile(client), personality=client["personality"], hidden=fmt_hidden(client)
+        profile=fmt_profile(client), personality=client["personality"], hidden=hidden
     )
     msgs = [{"role": "system", "content": sys_prompt}]
     for m in history:  # student = "user", client = "assistant"

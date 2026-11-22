@@ -44,7 +44,7 @@ Files are re-read on every request, so edits apply on the next page action.
 
 ## How the AI is used
 
-- **AI Client** – the system prompt contains the character, personality and the hidden facts, plus strict rules: answer only
+- **AI Client** – a small classifier step first decides which hidden facts the student's questions have *unlocked*; only those facts are put in the client's prompt, so a small model cannot leak the rest. The prompt also has the character, personality and strict rules: answer only
   what is asked, reveal a hidden item only when a relevant question is asked, react in character to product proposals
   and object if a product conflicts with their values or finances. Hidden facts are never sent to the browser.
 - **AI Coach** – runs in two steps: (1) a coverage check marks which hidden facts the client actually revealed, then (2) the feedback call uses that checklist so a small model does not call revealed facts "missed". It receives the full client file, the product limitations, the transcript and the student's own summary and
