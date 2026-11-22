@@ -132,3 +132,11 @@ textarea{font:inherit;border:1px solid var(--border-strong);border-radius:10px;p
   .stage{padding:24px 16px 48px}
   .split{grid-template-columns:1fr}.side{position:static}.chat-card{height:70vh}.tabpane{max-height:none}
 }
+
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+.stage{display:flex;flex-direction:column}
+.stage>.foot{margin-top:auto}
+.msg{line-height:1.5}
+.chat::-webkit-scrollbar,.tabpane::-webkit-scrollbar{width:8px}
+.chat::-webkit-scrollbar-thumb,.tabpane::-webkit-scrollbar-thumb{background:#d6d6dd;border-radius:8px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

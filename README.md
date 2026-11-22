@@ -1,58 +1,101 @@
 # Bank Client Discovery Simulator
 
-A small web app where a student interviews a fictional bank client (**AI Client**), recommends products from a
-catalogue, and then receives learning-focused feedback from an **AI Coach**.
+Practise interviewing bank clients, uncovering their financial needs and recommending suitable products.
+A student chats with an **AI Client** who keeps private needs hidden until asked the right questions, then receives
+learning-focused feedback from an **AI Coach**.
 
-Flow: **Select client → Interview → Recommend → Coaching feedback**
+**Select client → Interview → Recommend → Coaching feedback**
 
-- Python 3.9+ standard library only. **No `pip install` needed.**
-- Both chatbots call any **OpenAI-compatible** `/chat/completions` API (Ollama, LM Studio, Groq, OpenRouter, OpenAI...).
-- No login, no database.
+| 1. Select a client | 2. Interview | 3. Coaching feedback |
+|---|---|---|
+| ![Select client](docs/1-select-client.jpg) | ![Interview](docs/2-interview.jpg) | ![Feedback](docs/3-feedback.jpg) |
 
-## Run it
+- Python 3.9+ **standard library only**: no `pip install`, no database, no login.
+- Both AIs use any **OpenAI-compatible** `/chat/completions` API (Ollama, LM Studio, Groq, OpenRouter, OpenAI...).
+- Clients, products and prompts are plain files you can edit without touching code.
+
+## Quick start
 
 ```bash
-cp .env.example .env      # then edit .env (see below)
+git clone https://github.com/mdmumtaz7480-eng/bank-client-discovery-simulator.git
+cd bank-client-discovery-simulator
+cp .env.example .env        # then edit .env if you use a different model
 python3 app.py
 ```
-Open http://localhost:8000
+Open **http://localhost:8000**.
+
+### Free local model (what I used)
+```bash
+ollama pull qwen2.5:7b      # ~4.7 GB, runs on a 16 GB laptop
+ollama serve                # skip if the Ollama app is already running
+```
+The default `.env.example` already points at it.
 
 ## Configure the AI connection (`.env`)
 
 | Variable | Meaning | Example |
 |---|---|---|
-| `AI_BASE_URL` | OpenAI-compatible base URL (ending in `/v1`) | `http://localhost:11434/v1` |
+| `AI_BASE_URL` | OpenAI-compatible base URL (ends in `/v1`) | `http://localhost:11434/v1` |
 | `AI_API_KEY` | API key (any text for local models) | `ollama` |
 | `AI_MODEL` | Model name | `qwen2.5:7b` |
-| `AI_TEMPERATURE` | Optional, client temperature | `0.7` |
+| `AI_TEMPERATURE` | Optional, client creativity | `0.7` |
 | `PORT` | Optional web port | `8000` |
 
-Free local option with Ollama: `ollama pull qwen2.5:7b` (Ollama exposes an OpenAI-compatible API at `http://localhost:11434/v1`).
-Free hosted options: Groq or OpenRouter free tiers (see `.env.example`). Real environment variables override `.env`.
+Hosted free options (Groq, OpenRouter) are listed as examples in `.env.example`. Real environment variables override `.env`.
 
-**AI provider / model used for testing:** **Ollama running `qwen2.5:7b`** (free, open-source, local) through its OpenAI-compatible endpoint `http://localhost:11434/v1`. The committed sample in `samples/sample-interview.md` was generated with it.
+**Tested with:** Ollama running **`qwen2.5:7b`** (free, open-source, local) via `http://localhost:11434/v1`.
+
+## How the AI is used
+
+```mermaid
+flowchart LR
+  S[Student question] --> U{Unlock classifier}
+  U -->|only unlocked facts| C[AI Client prompt]
+  C --> R[In-character reply]
+  S2[Transcript + summary + recommendations] --> K[Coverage + product checks]
+  K --> H[AI Coach]
+  H --> F[Went well / Missed / Improve]
+```
+
+- **AI Client**: a small classifier call decides which hidden facts each student question has *unlocked*. Only those facts are
+  placed in the client's prompt, so a small model cannot leak the rest. The prompt adds character, personality and rules
+  (stay in role, short natural replies, react to product proposals based on the client's values and finances).
+- **AI Coach**: receives the client file, hidden needs, product limitations, transcript and the student's own summary
+  and recommendations. Code first computes a *coverage checklist* (which hidden needs were revealed) and flags *unsuitable
+  recommended products*, then the model writes feedback under **What went well / What was missed / How to improve**, with no score.
 
 ## Editing the content (no code changes)
 
 | File | Purpose |
 |---|---|
-| `content/clients/*.json` | One file per client: public profile, **hidden information**, ideal needs, suitable/unsuitable products. Add a file to add a client. |
-| `content/products.json` | Product catalogue (features and limitations). |
-| `content/prompts.json` | The AI Client and AI Coach instructions. |
+| `content/clients/*.json` | One file per client: public profile, hidden information, ideal needs, suitable/unsuitable products. Add a file to add a client. |
+| `content/products.json` | Product catalogue with features and limitations. |
+| `content/prompts.json` | AI Client and AI Coach instructions. |
 
-Files are re-read on every request, so edits apply on the next page action.
-
-## How the AI is used
-
-- **AI Client** – a small classifier step first decides which hidden facts the student's questions have *unlocked*; only those facts are put in the client's prompt, so a small model cannot leak the rest. The prompt also has the character, personality and strict rules: answer only
-  what is asked, reveal a hidden item only when a relevant question is asked, react in character to product proposals
-  and object if a product conflicts with their values or finances. Hidden facts are never sent to the browser.
-- **AI Coach** – runs in two steps: (1) a coverage check marks which hidden facts the client actually revealed, then (2) the feedback call uses that checklist so a small model does not call revealed facts "missed". It receives the full client file, the product limitations, the transcript and the student's own summary and
-  recommendations, and must answer under *What went well / What was missed / How to improve* with no numeric score.
+Files are re-read on every request, so edits apply immediately. Included: **2 clients** (Fatima, a Doha catering owner; Daniel, an expat teacher) and **7 products**.
 
 ## Sample interview
 
-Generate one with your configured model (writes `samples/sample-interview.md`):
+[`samples/sample-interview.md`](samples/sample-interview.md) contains the full conversation, the student's summary and
+product recommendations, and the AI Coach feedback. Regenerate it with your own model:
 ```bash
 python3 scripts/generate_sample.py
 ```
+
+## Project structure
+
+```
+app.py                 web server + both AI roles (stdlib only)
+static/                web interface (HTML, CSS, JS)
+content/               clients, products, prompts (editable)
+samples/               sample interview
+scripts/               sample generator
+docs/                  screenshots
+```
+
+## Limitations
+
+A 7B local model sometimes gives imperfect coaching wording or small role-play slips; a larger model through the same `.env`
+settings improves quality. This is a prototype: no authentication, persistence or production hardening.
+
+Licensed under the MIT License.
