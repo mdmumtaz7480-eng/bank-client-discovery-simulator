@@ -132,22 +132,44 @@ def fmt_transcript(client, history):
 
 
 def coverage_check(client, history):
-    """AI step 1 of coaching: for each hidden item, did the CLIENT reveal it in the transcript?
-    Small models lose track of long transcripts, so the coach gets this checklist as ground truth."""
-    items = "\n".join(f"{i + 1}. {h['topic']}: {h['detail']}" for i, h in enumerate(client["hidden_information"]))
-    prompt = (
-        "Below is an interview transcript and a numbered list of hidden facts about the client. For EACH fact decide "
-        "whether the client actually revealed it in the transcript (the client's own words state it). "
-        "Answer one line per fact in exactly this format:\n"
-        "<number>. <topic> - REVEALED (<the student question that drew it out>) or NOT REVEALED\n\n"
-        f"HIDDEN FACTS\n{items}\n\nTRANSCRIPT\n{fmt_transcript(client, history)}"
+    """Ground truth for the coach: a hidden fact counts as REVEALED when the student's questions unlocked it."""
+    unlocked = {h["topic"] for h in unlocked_items(client, history)}
+    return "\n".join(
+        f"- {h['topic']}: {'REVEALED to the student' if h['topic'] in unlocked else 'NOT REVEALED (the student never asked about it)'}"
+        for h in client["hidden_information"]
     )
-    return chat_completion([{"role": "user", "content": prompt}], temperature=0)
+
+
+def product_check(client, recommendations, products):
+    """Which catalogue products did the student recommend, and are they suitable for this client?"""
+    text = recommendations.lower()
+    lines = []
+    for p in products:
+        if p["name"].split(" (")[0].lower() in text or p["id"] in text:
+            ok = p["id"] in client.get("suitable_product_ids", [])
+            bad = p["id"] in client.get("unsuitable_product_ids", [])
+            verdict = "SUITABLE" if ok else ("UNSUITABLE for this client" if bad else "debatable")
+            lines.append(f"- {p['name']}: {verdict}. Limitations: {'; '.join(p['limitations'])}")
+    return "\n".join(lines) or "- (no catalogue product recognised in the recommendations)"
+
+
+def unsuitable_warnings(client, recommendations, products):
+    text = recommendations.lower()
+    by_id = {p["id"]: p for p in products}
+    better = ", ".join(by_id[i]["name"] for i in client.get("suitable_product_ids", []) if i in by_id)
+    out = []
+    for p in products:
+        if p["id"] in client.get("unsuitable_product_ids", []) and (p["name"].split(" (")[0].lower() in text or p["id"] in text):
+            out.append(f"- **Unsuitable recommendation: {p['name']}**. Limitations: {'; '.join(p['limitations'])}. "
+                       f"These conflict with {client['name'].split()[0]}'s situation (see the needs above)."
+                       + (f" Better fit from the catalogue: {better}." if better else ""))
+    return out
 
 
 def coach_feedback(client, history, summary, recommendations, products):
     transcript = fmt_transcript(client, history)
     coverage = coverage_check(client, history)
+    product_verdicts = product_check(client, recommendations, products)
     by_id = {p["id"]: p for p in products}
     catalogue = "\n".join(
         f"- {p['name']} (Sharia-compliant: {p['sharia_compliant']}): features: {'; '.join(p['features'])}. "
@@ -160,14 +182,20 @@ def coach_feedback(client, history, summary, recommendations, products):
         f"CLIENT FILE\n{fmt_profile(client)}\n\nHIDDEN INFORMATION THE STUDENT SHOULD HAVE UNCOVERED\n{fmt_hidden(client)}\n\n"
         f"IDEAL NEEDS AND PRODUCT FIT\n{client['ideal_needs_summary']}\nSuitable: {suitable}\nUnsuitable: {unsuitable}\n\n"
         f"COVERAGE CHECKLIST (verified; trust this over your own reading of the transcript)\n{coverage}\n\n"
+        f"CHECK OF THE STUDENT'S RECOMMENDED PRODUCTS (verified)\n{product_verdicts}\n\n"
         f"PRODUCT CATALOGUE\n{catalogue}\n\nINTERVIEW TRANSCRIPT\n{transcript}\n\n"
         f"STUDENT'S SUMMARY OF CLIENT NEEDS\n{summary}\n\nSTUDENT'S PRODUCT RECOMMENDATIONS\n{recommendations}\n\n"
         "Now write your coaching feedback."
     )
-    return chat_completion(
+    fb = chat_completion(
         [{"role": "system", "content": load_prompts()["coach_system"]}, {"role": "user", "content": user}],
         temperature=0.4,
     )
+    warnings = unsuitable_warnings(client, recommendations, products)
+    if warnings and "## How to improve" in fb:  # guaranteed, not left to the small model
+        head, tail = fb.split("## How to improve", 1)
+        fb = head.rstrip() + "\n" + "\n".join(warnings) + "\n\n## How to improve" + tail
+    return fb
 
 
 # ---------- HTTP ----------
